@@ -1,6 +1,6 @@
 Step 1: Argo CD Notifications triggers and templates installation
 
-kubectl apply -f https://raw.githubusercontent.com/TanmayRao7/argocd-example-apps/master/arogcd-notifications/custom-notify.yaml
+kubectl apply -f https://raw.githubusercontent.com/TanmayRao7/arogcd-custom-notifications/main/custom-notify.yaml
 
 Step 2: Configure secrets and tokens
 
