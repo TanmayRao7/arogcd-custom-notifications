@@ -1,0 +1,47 @@
+Step 1: Argo CD Notifications triggers and templates installation
+
+kubectl apply -f https://raw.githubusercontent.com/TanmayRao7/argocd-example-apps/master/arogcd-notifications/custom-notify.yaml
+
+Step 2: Configure secrets and tokens
+
+kubectl patch secret argocd-notifications-secret -n argocd \
+ --type merge --patch '{"stringData":{"slack-token": "<REPLACE_WTIH_ACUTAL_TOKEN>"}}'
+
+kubectl patch configmap argocd-notifications-cm -n <argocd-namespace> --type merge -p '{"data": {"service.slack": "token: $slack-token"}}'
+
+Step 3: Install ArgoCD application and Do an initial sync
+
+argocd app create ngnix --repo https://github.com/TanmayRao7/argocd-example-apps.git \
+  --path nginx --dest-namespace nginx \
+  --dest-server https://kubernetes.default.svc \
+  --annotations notifications.argoproj.io/subscribe.on-sync-out-of-sync.slack: <SLACK_CHANNEL_NAME>
+
+Perform an initial app sync:
+
+argocd app sync ngnix
+
+Note : this annotations is required in order to reciveve notifications from app 
+
+--annotations notifications.argoproj.io/subscribe.on-sync-out-of-sync.slack: <SLACK_CHANNEL_NAME>
+
+Some other annotations:
+
+annotations:
+  # To send Slack notifications when a resource is deleted in Argo CD.
+  notifications.argoproj.io/subscribe.on-deleted.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when a deployment is completed in Argo CD.
+  notifications.argoproj.io/subscribe.on-deployed.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when the health of a resource degrades in Argo CD.
+  notifications.argoproj.io/subscribe.on-health-degraded.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when a synchronization fails in Argo CD.
+  notifications.argoproj.io/subscribe.on-sync-failed.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when the synchronization status becomes unknown in Argo CD.
+  notifications.argoproj.io/subscribe.on-sync-status-unknown.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when a synchronization succeeds in Argo CD.
+  notifications.argoproj.io/subscribe.on-sync-succeeded.slack: <SLACK_CHANNEL_NAME>
+  # To send Slack notifications when a synchronization is out of sync in Argo CD.
+  notifications.argoproj.io/subscribe.on-sync-out-of-sync.slack: <SLACK_CHANNEL_NAME>
+
+Once Done you will get notifications whenever application is out of sync.
+
+Thanks !
